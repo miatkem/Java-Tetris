@@ -8,30 +8,29 @@ import javax.swing.Timer;
 
 public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 {
-	/*OBJECTS*/
+	//Variables
 	private Tetris game;
 	private int sec;
+	private Timer time;
+	
+	//GUI Objects
 	private JLabel lblScore;
 	private JLabel lblLevel;
 	private JLabel lblNextTitle;
 	private JLabel lblNextPiece;
 	private JLabel lblSavedTitle;
 	private JLabel lblSavedPiece;
-
-
-	//Buttons and LAbels
 	private JLabel[][] grid;
-	private Timer time;
 	private JFrame window;
-
 
 	public static void main(String[] args)
 	{
-		new TetrisGUI();
+		new TetrisGUI(); /*initialize GUI*/
 	}
 
 	public TetrisGUI()
 	{
+		//Setup Window
 		Font f = new Font("Times Roman", Font.PLAIN, 7);
 		Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
 		window = new JFrame("Tetris");
@@ -40,17 +39,18 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		window.setTitle("Tetris");
 		window.setSize(370,750);
 		window.setFocusable(true);
-		//window.setResizable(false);
-
+		window.setResizable(false);
+		window.setLocationRelativeTo(null);
+		
+		//Initialize Tetris game object
 		game=new Tetris();
 
-		//Center on Screen
-		window.setLocationRelativeTo(null);
-
+		//Create border layout jpanel user display
 		JPanel userInterface = new JPanel();
 		userInterface.setLayout(new BorderLayout(20,10));
 		userInterface.setBackground(new Color(192,192,192));
-
+		
+		//Create right panelgrid layout with score, level, next piece, saved piece
 		JPanel rightPanel = new JPanel();
 		rightPanel.setLayout(new GridLayout(24,10));
 		lblScore = new JLabel("Score: 0");
@@ -67,12 +67,13 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		lblSavedPiece = new JLabel("");
 		lblSavedPiece.setOpaque(true);
 		rightPanel.add(lblSavedPiece);
-
+		
+		//Create tetris grid with grid layout in center of the user Interface's border layout
 		JPanel boardDisplay = new JPanel();
 		boardDisplay.setBackground(new Color(192,192,192));
 		boardDisplay.setLayout(new GridLayout(24,10));
 		grid = new JLabel[28][10];
-
+		//loop through grid cells, initialize and add borders
 		for(int y = 0; y < 24; y++)
 		{
 			for(int x = 0; x < 10; x++)
@@ -83,20 +84,26 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 				boardDisplay.add(grid[y+4][x]);
 			}
 		}
-
+		
+		//Add tetris grid and right panel to the main jpanel
 		userInterface.add(boardDisplay, BorderLayout.CENTER);
 		userInterface.add(rightPanel, BorderLayout.EAST);
-
+		
+		//add the main panel to the window is set it visble
 		window.add(userInterface);
 		window.setVisible(true);
-		window.addKeyListener(this);
-
+		window.addKeyListener(this); /*add key listener to window for user input*/
+		
+		//Create game timer
 		time = new Timer(100, this);
 		time.setInitialDelay(0);
 		sec=0;
+		
+		//START GAME
 		time.start();
 	}
-
+	
+	//perform game cycle in tetris object every tick and refresh the gui display
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource()==time)
@@ -107,7 +114,8 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		}
 	}
 
-
+	//Refresh gui display of tetris object by getting score, level, next piece, saved piece 
+	//and looping through each grid cell and checking its color
 	public void refresh()
 	{
 		lblScore.setText("Score: "+ game.getScore());
@@ -159,39 +167,40 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		}
 
 	}
-
+	
+	//Player key input catching
 	public void keyTyped(KeyEvent e) {}
 	public void keyPressed(KeyEvent e)
 	{
-		if(e.getKeyCode()==KeyEvent.VK_RIGHT)
+		if(e.getKeyCode()==KeyEvent.VK_RIGHT) //Move right
 		{
 			game.moved();
 			game.moveRight();
 		}
 
-		if(e.getKeyCode()==KeyEvent.VK_LEFT)
+		if(e.getKeyCode()==KeyEvent.VK_LEFT) //Move left
 		{
 			game.moved();
 			game.moveLeft();
 		}
-		if(e.getKeyCode()==KeyEvent.VK_SPACE)
+		if(e.getKeyCode()==KeyEvent.VK_SPACE) //Quick Drop
 		{
 			game.moved();
 			game.drop();
 		}
-		if(e.getKeyCode()==KeyEvent.VK_UP)
+		if(e.getKeyCode()==KeyEvent.VK_UP) //Rotate
 		{
 			game.moved();
 			game.rotate();
 			refresh();
 		}
-		if(e.getKeyCode()==KeyEvent.VK_C)
+		if(e.getKeyCode()==KeyEvent.VK_C) //Save Piece
 		{
 			game.moved();
 			game.savePiece();
 		}
 
-		if(e.getKeyCode()==KeyEvent.VK_DOWN)
+		if(e.getKeyCode()==KeyEvent.VK_DOWN) //Speed Drop Start
 		{
 			time = new Timer(20, this);
 			time.start();
@@ -199,7 +208,7 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 	}
 	public void keyReleased(KeyEvent e)
 	{
-		if(e.getKeyCode()==KeyEvent.VK_DOWN)
+		if(e.getKeyCode()==KeyEvent.VK_DOWN) //Speed Drop End
 		{
 			time = new Timer(100, this);
 			time.start();
