@@ -11,6 +11,13 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 	/*OBJECTS*/
 	private Tetris game;
 	private int sec;
+	private JLabel lblScore;
+	private JLabel lblLevel;
+	private JLabel lblNextTitle;
+	private JLabel lblNextPiece;
+	private JLabel lblSavedTitle;
+	private JLabel lblSavedPiece;
+
 
 	//Buttons and LAbels
 	private JLabel[][] grid;
@@ -44,6 +51,23 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		userInterface.setLayout(new BorderLayout(20,10));
 		userInterface.setBackground(new Color(192,192,192));
 
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new GridLayout(24,10));
+		lblScore = new JLabel("Score: 0");
+		rightPanel.add(lblScore);
+		lblLevel = new JLabel("Level: 1");
+		rightPanel.add(lblLevel);
+		lblNextTitle = new JLabel("Next:");
+		rightPanel.add(lblNextTitle);
+		lblNextPiece = new JLabel("");
+		lblNextPiece.setOpaque(true);
+		rightPanel.add(lblNextPiece);
+		lblSavedTitle = new JLabel("Saved:");
+		rightPanel.add(lblSavedTitle);
+		lblSavedPiece = new JLabel("");
+		lblSavedPiece.setOpaque(true);
+		rightPanel.add(lblSavedPiece);
+
 		JPanel boardDisplay = new JPanel();
 		boardDisplay.setBackground(new Color(192,192,192));
 		boardDisplay.setLayout(new GridLayout(24,10));
@@ -61,6 +85,7 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 		}
 
 		userInterface.add(boardDisplay, BorderLayout.CENTER);
+		userInterface.add(rightPanel, BorderLayout.EAST);
 
 		window.add(userInterface);
 		window.setVisible(true);
@@ -85,6 +110,8 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 
 	public void refresh()
 	{
+		lblScore.setText("Score: "+ game.getScore());
+		lblLevel.setText("Level: "+ game.getLevel());
 		for(int y = 0; y < 24; y++)
 		{
 			for(int x = 0; x < 10; x++)
@@ -104,10 +131,33 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 					case 6 : grid[y+4][x].setBackground(Color.PINK); break;
 					case 7 : grid[y+4][x].setBackground(Color.MAGENTA); break;
 				}
-
-				//grid[y+4][x].setText("" + game.getSpace(y+4,x));
 			}
 		}
+
+		switch(game.getNextPiece())
+		{
+			case 0 : lblNextPiece.setBackground(Color.BLACK); break;
+			case 1 : lblNextPiece.setBackground(Color.RED); break;
+			case 2 : lblNextPiece.setBackground(Color.BLUE); break;
+			case 3 : lblNextPiece.setBackground(Color.GREEN); break;
+			case 4 : lblNextPiece.setBackground(Color.ORANGE); break;
+			case 5 : lblNextPiece.setBackground(Color.YELLOW); break;
+			case 6 : lblNextPiece.setBackground(Color.PINK); break;
+			case 7 : lblNextPiece.setBackground(Color.MAGENTA); break;
+		}
+
+		switch(game.getSavedPiece())
+		{
+			case 0 : lblSavedPiece.setBackground(Color.BLACK); break;
+			case 1 : lblSavedPiece.setBackground(Color.RED); break;
+			case 2 : lblSavedPiece.setBackground(Color.BLUE); break;
+			case 3 : lblSavedPiece.setBackground(Color.GREEN); break;
+			case 4 : lblSavedPiece.setBackground(Color.ORANGE); break;
+			case 5 : lblSavedPiece.setBackground(Color.YELLOW); break;
+			case 6 : lblSavedPiece.setBackground(Color.PINK); break;
+			case 7 : lblSavedPiece.setBackground(Color.MAGENTA); break;
+		}
+
 	}
 
 	public void keyTyped(KeyEvent e) {}
@@ -115,20 +165,30 @@ public class TetrisGUI extends JFrame implements ActionListener, KeyListener
 	{
 		if(e.getKeyCode()==KeyEvent.VK_RIGHT)
 		{
+			game.moved();
 			game.moveRight();
 		}
 
 		if(e.getKeyCode()==KeyEvent.VK_LEFT)
 		{
+			game.moved();
 			game.moveLeft();
 		}
 		if(e.getKeyCode()==KeyEvent.VK_SPACE)
 		{
+			game.moved();
 			game.drop();
 		}
 		if(e.getKeyCode()==KeyEvent.VK_UP)
 		{
+			game.moved();
 			game.rotate();
+			refresh();
+		}
+		if(e.getKeyCode()==KeyEvent.VK_C)
+		{
+			game.moved();
+			game.savePiece();
 		}
 
 		if(e.getKeyCode()==KeyEvent.VK_DOWN)

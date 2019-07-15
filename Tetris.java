@@ -14,6 +14,8 @@ public class Tetris
 
 	private boolean falling,gameOver;
 	private int[][] grid;
+	private int score;
+	private int level;
 	private int nextPiece;
 	private int savedPiece;
 	private Point[] movingPosition;
@@ -24,6 +26,8 @@ public class Tetris
 
 	public Tetris()
 	{
+		score=0;
+		level=0;
 		gameOver=false;
 		movingPosition= new Point[4];
 		movingPiece=0;
@@ -55,11 +59,45 @@ public class Tetris
 
 		else if(!gameOver)
 		{
-			addNewPiece();
+			addNewPiece(nextPiece);
+			nextPiece=(int) (Math.random()*7)+1;
 		}
 
 		clearRows();
 
+	}
+
+	public void savePiece()
+	{
+		int temp = savedPiece;
+		savedPiece=movingPiece;
+
+		for(int i=0; i<movingPosition.length; i++)
+		{
+			grid[(int)movingPosition[i].getY()][(int)movingPosition[i].getX()]=0;
+		}
+
+		if(temp==-1)
+			addNewPiece(nextPiece);
+
+		else
+			addNewPiece(temp);
+
+	}
+
+	public int getSavedPiece()
+	{
+		return savedPiece;
+	}
+
+	public int getNextPiece()
+	{
+		return nextPiece;
+	}
+
+	public void moved()
+	{
+		moved=true;
 	}
 
 	public String printBoard()
@@ -84,7 +122,10 @@ public class Tetris
 	public void drop()
 	{
 		while(falling)
+		{
+			score+=1;
 			tickFalling();
+		}
 	}
 
 	public void tickFalling()
@@ -169,61 +210,66 @@ public class Tetris
 		}
 	}
 
+	public void rotateOnOrgin(int orginX, int orginY)
+	{
+		boolean boundsChecked=true;
+
+		for(int i=0; i<movingPosition.length; i++)
+		 {
+			int xTranslation=(int)movingPosition[i].getX()-orginX;
+			int yTranslation=(int)movingPosition[i].getY()-orginY;
+			int newX = (int)Math.round( (xTranslation) * Math.cos(Math.PI/2) - (yTranslation) * Math.sin(Math.PI/2));
+			int newY = (int)Math.round((xTranslation) * Math.sin(Math.PI/2) + (yTranslation) * Math.cos(Math.PI/2));
+
+			if(!(newX+orginX>=0&&newX+orginX<=9&&newY+orginY>=0&&newY+orginY<=27))
+			{
+				boundsChecked=false;
+			}
+			else if(!(grid[newY+orginY][newX+orginX]==0||grid[newY+orginY][newX+orginX]==8))
+			{
+				boundsChecked=false;
+			}
+		}
+
+		if(boundsChecked)
+		{
+			for(int i=0; i<movingPosition.length; i++)
+			 {
+				int xTranslation=(int)movingPosition[i].getX()-orginX;
+				int yTranslation=(int)movingPosition[i].getY()-orginY;
+				int newX = (int)Math.round( (xTranslation) * Math.cos(Math.PI/2) - (yTranslation) * Math.sin(Math.PI/2));
+				int newY = (int)Math.round((xTranslation) * Math.sin(Math.PI/2) + (yTranslation) * Math.cos(Math.PI/2));
+
+				grid[(int)movingPosition[i].getY()][(int)movingPosition[i].getX()]=0;
+				movingPosition[i]=new Point(newX+orginX,newY+orginY);
+			}
+		}
+	}
+
 	public void rotate()
 	{
-		rotationNum++;
-		if(rotationNum>3)
-			rotationNum=0;
 		switch(movingPiece)
 		{
-			case 1 : if(rotationNum==0)
-					 {
-						grid[(int)movingPosition[0].getY()] [(int)movingPosition[0].getX()]=0;
-						movingPosition[0]=new Point((int)movingPosition[0].getX(),(int)movingPosition[0].getY()-2);
-						grid[(int)movingPosition[1].getY()] [(int)movingPosition[1].getX()]=0;
-						movingPosition[1]=new Point((int)movingPosition[1].getX()-1,(int)movingPosition[1].getY()-1);
-						grid[(int)movingPosition[3].getY()] [(int)movingPosition[3].getX()]=0;
-						movingPosition[3]=new Point((int)movingPosition[3].getX()-1,(int)movingPosition[3].getY()+1);
-					 }
-					 else if(rotationNum==1)
-					 {
-						grid[(int)movingPosition[0].getY()] [(int)movingPosition[0].getX()]=0;
-						movingPosition[0]=new Point((int)movingPosition[0].getX()+2,(int)movingPosition[0].getY());
-						grid[(int)movingPosition[1].getY()] [(int)movingPosition[1].getX()]=0;
-						movingPosition[1]=new Point((int)movingPosition[1].getX()+1,(int)movingPosition[1].getY()-1);
-						grid[(int)movingPosition[3].getY()] [(int)movingPosition[3].getX()]=0;
-						movingPosition[3]=new Point((int)movingPosition[3].getX()-1,(int)movingPosition[3].getY()-1);
-					 }
-					 else if(rotationNum==2)
-					 {
-						grid[(int)movingPosition[0].getY()] [(int)movingPosition[0].getX()]=0;
-						movingPosition[0]=new Point((int)movingPosition[0].getX(),(int)movingPosition[0].getY()+2);
-						grid[(int)movingPosition[1].getY()] [(int)movingPosition[1].getX()]=0;
-						movingPosition[1]=new Point((int)movingPosition[1].getX()+1,(int)movingPosition[1].getY()+1);
-						grid[(int)movingPosition[3].getY()] [(int)movingPosition[3].getX()]=0;
-						movingPosition[3]=new Point((int)movingPosition[3].getX()+1,(int)movingPosition[3].getY()-1);
-					 }
-					 else if(rotationNum==3)
-					 {
-						grid[(int)movingPosition[0].getY()] [(int)movingPosition[0].getX()]=0;
-						movingPosition[0]=new Point((int)movingPosition[0].getX()-2,(int)movingPosition[0].getY());
-						grid[(int)movingPosition[1].getY()] [(int)movingPosition[1].getX()]=0;
-						movingPosition[1]=new Point((int)movingPosition[1].getX()-1,(int)movingPosition[1].getY()+1);
-						grid[(int)movingPosition[3].getY()] [(int)movingPosition[3].getX()]=0;
-						movingPosition[3]=new Point((int)movingPosition[3].getX()+1,(int)movingPosition[3].getY()+1);
-					 }
+			case 1 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
 					 break;
-			case 2 : break;
-			case 3 : break;
-			case 4 : break;
-			case 5 : break;
-			case 6 : break;
-			case 7 : break;
+			case 2 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
+					 break;
+			case 3 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
+					 break;
+			case 4 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
+					 break;
+			case 5 : rotateOnOrgin((int)movingPosition[3].getX(), (int)movingPosition[3].getY());
+					 break;
+			case 6 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
+					 break;
+			case 7 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
+					 break;
 		}
 	}
 
 	public void clearRows()
 	{
+		int lines=0;
 		boolean fullRow;
 		for(int i = grid.length-1; i>=0; i--)
 		{
@@ -237,6 +283,7 @@ public class Tetris
 
 			if(fullRow)
 			{
+				lines++;
 				for(int row = i-1; row>=0; row--)
 				{
 					for(int col = 0; col<grid[row].length; col++)
@@ -248,6 +295,24 @@ public class Tetris
 			}
 		}
 
+		switch(lines)
+		{
+			case 1: score+=40*(level+1); break;
+			case 2: score+=100*(level+1); break;
+			case 3: score+=300*(level+1); break;
+			case 4: score+=1200*(level+1); break;
+		}
+
+	}
+
+	public int getLevel()
+	{
+		return level;
+	}
+
+	public int getScore()
+	{
+		return score;
 	}
 
 
@@ -291,10 +356,9 @@ public class Tetris
 		return movingPiece;
 	}
 
-	public void addNewPiece()
+	public void addNewPiece(int piece)
 	{
-		rotationNum=-1;
-		switch(nextPiece)
+		switch(piece)
 		{
 			/*RIGHT STAIR RED*/case 1 : grid[4][4] = CURRENT_PIECE;
 									  	grid[4][5] = CURRENT_PIECE;
@@ -380,8 +444,6 @@ public class Tetris
 							movingPiece=PURPLE;
 							break;
 		}
-
-		nextPiece=(int) (Math.random()*7)+1;
 		falling=true;
 	}
 
