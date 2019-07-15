@@ -2,16 +2,10 @@ import java.awt.Point;
 
 public class Tetris
 {
-	//Constants
-	private int RED=1;
-	private int BLUE=2;
-	private int GREEN=3;
-	private int ORANGE=4;
-	private int YELLOW=5;
-	private int PINK=6;
-	private int PURPLE=7;
+	//Constant
 	private int CURRENT_PIECE=8;
-
+	
+	//variables
 	private boolean falling,gameOver;
 	private int[][] grid;
 	private int score;
@@ -23,7 +17,8 @@ public class Tetris
 	private boolean moved;
 	private int rowsCleared;
 	private int rotationNum;
-
+	
+	//Constructor
 	public Tetris()
 	{
 		score=0;
@@ -38,24 +33,18 @@ public class Tetris
 		grid = new int[28][10];
 
 		for(int row = 0; row < grid.length; row++)
-		{
 			for(int col = 0; col< grid[0].length; col++)
-			{
 				grid[row][col]=0;
-			}
-		}
 	}
-
+	
+	//Game Cylcle
 	public void tick()
 	{
 		if(moved)
-		{
 			moved=false;
-		}
+		
 		else if(falling)
-		{
 			tickFalling();
-		}
 
 		else if(!gameOver)
 		{
@@ -66,17 +55,16 @@ public class Tetris
 		clearRows();
 
 	}
-
+	
+	//Allows player to save the current piece falling for later use
 	public void savePiece()
 	{
 		int temp = savedPiece;
 		savedPiece=movingPiece;
 
 		for(int i=0; i<movingPosition.length; i++)
-		{
 			grid[(int)movingPosition[i].getY()][(int)movingPosition[i].getX()]=0;
-		}
-
+		
 		if(temp==-1)
 			addNewPiece(nextPiece);
 
@@ -84,22 +72,26 @@ public class Tetris
 			addNewPiece(temp);
 
 	}
-
+	
+	//returns what peice is saved
 	public int getSavedPiece()
 	{
 		return savedPiece;
 	}
-
+	
+	//returns what piece is next
 	public int getNextPiece()
 	{
 		return nextPiece;
 	}
-
+	
+	//returns if the piece was moved in the game cycle
 	public void moved()
 	{
 		moved=true;
 	}
-
+	
+	//prints the boards using characters, allows for play in command prompt
 	public String printBoard()
 	{
 		String result="";
@@ -113,12 +105,14 @@ public class Tetris
 		}
 		return result;
 	}
-
+	
+	//get the color/shape in each grid cell
 	public int getSpace(int row, int col)
 	{
 		return grid[row][col];
 	}
-
+	
+	//fast drop the current piece to its bottom position 
 	public void drop()
 	{
 		while(falling)
@@ -127,7 +121,8 @@ public class Tetris
 			tickFalling();
 		}
 	}
-
+	
+	//Attempt to move the current piece down one. Check for OBE and for other pieces.
 	public void tickFalling()
 	{
 		boolean keepMoving=true;
@@ -137,16 +132,12 @@ public class Tetris
 		for(int i=0; i<movingPosition.length; i++)
 		{
 			if((int)movingPosition[i].getY()+1>27)
-			{
 				keepMoving=false;
-			}
 			else
 			{
 				int squareBelow = grid[(int)movingPosition[i].getY()+1] [(int)movingPosition[i].getX()];
 				if(squareBelow!=CURRENT_PIECE&&squareBelow!=0)
-				{
 					keepMoving=false;
-				}
 			}
 		}
 		//Keep Falling
@@ -160,9 +151,7 @@ public class Tetris
 			}
 
 			for(int i=0; i<movingPosition.length; i++)
-			{
 				grid[(int)movingPosition[i].getY()] [(int)movingPosition[i].getX()]=CURRENT_PIECE;
-			}
 		}
 
 		//Done Falling
@@ -170,12 +159,11 @@ public class Tetris
 		{
 			falling=false;
 			for(int i=0; i<movingPosition.length; i++)
-			{
 				grid[(int)movingPosition[i].getY()] [(int)movingPosition[i].getX()]=movingPiece;
-			}
 		}
 	}
-
+	
+	//Attempt to move current piece right. Check for obe and other pieces.
 	public void moveRight()
 	{
 		boolean canMoveRight=true;
@@ -202,14 +190,13 @@ public class Tetris
 			}
 
 			for(int i=0; i<movingPosition.length; i++)
-			{
 				grid[(int)movingPosition[i].getY()] [(int)movingPosition[i].getX()]=CURRENT_PIECE;
-			}
-
 			moved=true;
 		}
 	}
-
+	
+	//rotate the current piece on a certain origin using rotation mathematics. Each tetris piece has a different origin (see rotate())
+	//Check for obe and if so push piece over to fit, check for collision for other pieces.
 	public void rotateOnOrgin(int orginX, int orginY)
 	{
 		boolean boundsChecked=true;
@@ -222,13 +209,10 @@ public class Tetris
 			int newY = (int)Math.round((xTranslation) * Math.sin(Math.PI/2) + (yTranslation) * Math.cos(Math.PI/2));
 
 			if(!(newX+orginX>=0&&newX+orginX<=9&&newY+orginY>=0&&newY+orginY<=27))
-			{
 				boundsChecked=false;
-			}
+			
 			else if(!(grid[newY+orginY][newX+orginX]==0||grid[newY+orginY][newX+orginX]==8))
-			{
 				boundsChecked=false;
-			}
 		}
 
 		if(boundsChecked)
@@ -245,28 +229,30 @@ public class Tetris
 			}
 		}
 	}
-
+	
+	//Use rotateOnOrigin to rotate each piece. Each piece has a different origin to rotate on
 	public void rotate()
 	{
 		switch(movingPiece)
 		{
 			case 1 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
-					 break;
+				 break;
 			case 2 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
-					 break;
+				 break;
 			case 3 : rotateOnOrgin((int)movingPosition[2].getX(), (int)movingPosition[2].getY());
-					 break;
+				 break;
 			case 4 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
-					 break;
+				 break;
 			case 5 : rotateOnOrgin((int)movingPosition[3].getX(), (int)movingPosition[3].getY());
-					 break;
+				 break;
 			case 6 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
-					 break;
+				 break;
 			case 7 : rotateOnOrgin((int)movingPosition[1].getX(), (int)movingPosition[1].getY());
-					 break;
+				 break;
 		}
 	}
-
+	
+	//Check for and clear any row that is completely full of nonmoving pieces
 	public void clearRows()
 	{
 		int lines=0;
@@ -276,10 +262,8 @@ public class Tetris
 			fullRow=true;
 
 			for(int j = 0; j<grid[i].length; j++)
-			{
 				if(grid[i][j]==0||grid[i][j]==8)
 					fullRow=false;
-			}
 
 			if(fullRow)
 			{
@@ -304,18 +288,20 @@ public class Tetris
 		}
 
 	}
-
+	
+	//return the current level (further implementation requried for levels)
 	public int getLevel()
 	{
 		return level;
 	}
-
+	
+	//return score
 	public int getScore()
 	{
 		return score;
 	}
 
-
+	//Attempt to move current piece left. Check for obe and other pieces.
 	public void moveLeft()
 	{
 		boolean canMoveLeft=true;
@@ -342,107 +328,106 @@ public class Tetris
 			}
 
 			for(int i=0; i<movingPosition.length; i++)
-			{
 				grid[(int)movingPosition[i].getY()] [(int)movingPosition[i].getX()]=CURRENT_PIECE;
-			}
-
 			moved=true;
 		}
 	}
 
-
+	//return the currently falling piece type/color
 	public int getMovingPiece()
 	{
 		return movingPiece;
 	}
-
+	
+	//add the new piece above the displayed grid to begin it descent
 	public void addNewPiece(int piece)
 	{
 		switch(piece)
 		{
-			/*RIGHT STAIR RED*/case 1 : grid[4][4] = CURRENT_PIECE;
-									  	grid[4][5] = CURRENT_PIECE;
-									  	grid[3][5] = CURRENT_PIECE;
-									  	grid[3][6] = CURRENT_PIECE;
-									  	movingPosition=new Point[4];
-									  	movingPosition[0]=new Point(4,4);
-									 	movingPosition[1]=new Point(5,4);
-									  	movingPosition[2]=new Point(5,3);
-									 	movingPosition[3]=new Point(6,3);
-									 	movingPiece=RED;
-									 	break;
-
-			/*LINE*/case 2 : 	grid[1][4] = CURRENT_PIECE;
-							    grid[2][4] = CURRENT_PIECE;
-							    grid[3][4] = CURRENT_PIECE;
-							    grid[4][4] = CURRENT_PIECE;
-							    movingPosition=new Point[4];
-								movingPosition[0]=new Point(4,1);
-								movingPosition[1]=new Point(4,2);
-								movingPosition[2]=new Point(4,3);
-								movingPosition[3]=new Point(4,4);
-								movingPiece=BLUE;
-							    break;
-
-			/*LEFT STAIR*/case 3 :  grid[3][4] = CURRENT_PIECE;
-								    grid[3][5] = CURRENT_PIECE;
-								    grid[4][5] = CURRENT_PIECE;
-								    grid[4][6] = CURRENT_PIECE;
-									movingPosition=new Point[4];
-									movingPosition[0]=new Point(4,3);
-									movingPosition[1]=new Point(5,3);
-									movingPosition[2]=new Point(5,4);
-									movingPosition[3]=new Point(6,4);
-									movingPiece=GREEN;
-									break;
-
-			/*RIGHT L*/case 4 : grid[2][4] = CURRENT_PIECE;
-							    grid[3][4] = CURRENT_PIECE;
-							    grid[4][4] = CURRENT_PIECE;
-							    grid[4][5] = CURRENT_PIECE;
-							    movingPosition=new Point[4];
-								movingPosition[0]=new Point(4,2);
-								movingPosition[1]=new Point(4,3);
-								movingPosition[2]=new Point(4,4);
-								movingPosition[3]=new Point(5,4);
-								movingPiece=ORANGE;
-								break;
-
-			/*SQUARE*/case 5 : 	grid[4][4] = CURRENT_PIECE;
-								grid[4][5] = CURRENT_PIECE;
-								grid[3][4] = CURRENT_PIECE;
-								grid[3][5] = CURRENT_PIECE;
-								movingPosition=new Point[4];
-								movingPosition[0]=new Point(4,4);
-								movingPosition[1]=new Point(5,4);
-								movingPosition[2]=new Point(4,3);
-								movingPosition[3]=new Point(5,3);
-								movingPiece=YELLOW;
-								break;
-
-			/*LEFT L*/case 6 : 	grid[2][5] = CURRENT_PIECE;
-								grid[3][5] = CURRENT_PIECE;
-								grid[4][5] = CURRENT_PIECE;
-								grid[4][4] = CURRENT_PIECE;
-								movingPosition=new Point[4];
-								movingPosition[0]=new Point(5,2);
-								movingPosition[1]=new Point(5,3);
-								movingPosition[2]=new Point(5,4);
-								movingPosition[3]=new Point(4,4);
-								movingPiece=PINK;
-								break;
-
-			/*T*/case 7 : 	grid[3][3] = CURRENT_PIECE;
-						    grid[3][4] = CURRENT_PIECE;
-						    grid[3][5] = CURRENT_PIECE;
-						    grid[4][4] = CURRENT_PIECE;
-						    movingPosition=new Point[4];
-							movingPosition[0]=new Point(3,3);
-							movingPosition[1]=new Point(4,3);
-							movingPosition[2]=new Point(5,3);
-							movingPosition[3]=new Point(4,4);
-							movingPiece=PURPLE;
-							break;
+			/*RIGHT STAIR RED*/
+			case 1 :grid[4][4] = CURRENT_PIECE;
+				grid[4][5] = CURRENT_PIECE;
+				grid[3][5] = CURRENT_PIECE;
+				grid[3][6] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(4,4);
+				movingPosition[1]=new Point(5,4);
+				movingPosition[2]=new Point(5,3);
+				movingPosition[3]=new Point(6,3);
+				movingPiece=RED;
+				break;
+			/*LINE*/
+			case 2 :grid[1][4] = CURRENT_PIECE;
+			    	grid[2][4] = CURRENT_PIECE;
+				grid[3][4] = CURRENT_PIECE;
+				grid[4][4] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(4,1);
+				movingPosition[1]=new Point(4,2);
+				movingPosition[2]=new Point(4,3);
+				movingPosition[3]=new Point(4,4);
+				movingPiece=BLUE;
+				break;
+			/*LEFT STAIR*/
+			case 3 :grid[3][4] = CURRENT_PIECE;
+			    	grid[3][5] = CURRENT_PIECE;
+			    	grid[4][5] = CURRENT_PIECE;
+			    	grid[4][6] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(4,3);
+				movingPosition[1]=new Point(5,3);
+				movingPosition[2]=new Point(5,4);
+				movingPosition[3]=new Point(6,4);
+				movingPiece=GREEN;
+				break;
+			/*RIGHT L*/
+			case 4 :grid[2][4] = CURRENT_PIECE;
+			    	grid[3][4] = CURRENT_PIECE;
+			    	grid[4][4] = CURRENT_PIECE;
+			    	grid[4][5] = CURRENT_PIECE;
+			    	movingPosition=new Point[4];
+				movingPosition[0]=new Point(4,2);
+				movingPosition[1]=new Point(4,3);
+				movingPosition[2]=new Point(4,4);
+				movingPosition[3]=new Point(5,4);
+				movingPiece=ORANGE;
+				break;
+			/*SQUARE*/
+			case 5 :grid[4][4] = CURRENT_PIECE;
+				grid[4][5] = CURRENT_PIECE;
+				grid[3][4] = CURRENT_PIECE;
+				grid[3][5] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(4,4);
+				movingPosition[1]=new Point(5,4);
+				movingPosition[2]=new Point(4,3);
+				movingPosition[3]=new Point(5,3);
+				movingPiece=YELLOW;
+				break;
+			/*LEFT L*/
+			case 6 :grid[2][5] = CURRENT_PIECE;
+				grid[3][5] = CURRENT_PIECE;
+				grid[4][5] = CURRENT_PIECE;
+				grid[4][4] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(5,2);
+				movingPosition[1]=new Point(5,3);
+				movingPosition[2]=new Point(5,4);
+				movingPosition[3]=new Point(4,4);
+				movingPiece=PINK;
+				break;
+			/*T*/
+			case 7 :grid[3][3] = CURRENT_PIECE;
+				grid[3][4] = CURRENT_PIECE;
+				grid[3][5] = CURRENT_PIECE;
+				grid[4][4] = CURRENT_PIECE;
+				movingPosition=new Point[4];
+				movingPosition[0]=new Point(3,3);
+				movingPosition[1]=new Point(4,3);
+				movingPosition[2]=new Point(5,3);
+				movingPosition[3]=new Point(4,4);
+				movingPiece=PURPLE;
+				break;
 		}
 		falling=true;
 	}
